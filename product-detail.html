@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Loading Product...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #A00000;
+            --secondary-color: #2e2e2e;
+            --text-color: #ffffff;
+            --background-color: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .product-header h1 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .product-content {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .product-image {
+            flex: 1;
+            max-width: 400px;
+            background-color: #444;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--primary-color);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .price {
+            font-size: 2rem;
+            color: #4CAF50; /* Green for price */
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            margin-top: 10px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+        }
+        .btn.primary:hover {
+            background-color: #b71c1c; 
+        }
+
+        .cart-summary {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .cart-count {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        .user-info {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+        
+        /* Mobile adjustment */
+        @media (max-width: 600px) {
+            .product-content {
+                flex-direction: column;
+            }
+            .product-image {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="product-header">
+            <h1 id="product-name">Product Name</h1>
+            <a href="index.html" style="color: #ccc; text-decoration: none; font-size: 0.9em;">&larr; Back to Shop</a>
+        </header>
+
+        <div class="product-content">
+            <div class="product-image">
+                <img id="product-img" src="https://placehold.co/400x400/2e2e2e/ffffff?text=Image+Loading..." alt="Product Image">
+            </div>
+            <div class="product-details">
+                <p class="price" id="product-price">$0.00 SEK</p>
+                <p class="description" id="product-description">Product description will appear here.</p>
+
+                <!-- Options/Quantity (Simple implementation) -->
+                <label for="quantity" style="display: block; margin-bottom: 8px; color: #ccc;">Quantity:</label>
+                <input type="number" id="quantity" value="1" min="1" max="10" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #444; color: var(--text-color); box-sizing: border-box; margin-bottom: 15px;">
+                
+                <button id="add-to-cart-btn" class="btn primary">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div>
+                Total Items in Cart: <span id="cart-item-count" class="cart-count">0</span>
+            </div>
+            <a href="order.html" class="btn primary" style="width: auto; padding: 10px 25px;">Go to Checkout (Temporary Link)</a>
+        </div>
+        <p class="user-info">
+            Authenticated User ID: <span id="user-id">Authenticating...</span>
+        </p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- 1. CONFIGURATION AND INITIALIZATION ---
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let app, db, auth, userId = null;
+        
+        // Hardcoded product data mapping
+        const PRODUCTS = {
+            'red-head': { name: 'The Skärgård: Red Head (6")', price: 8.50, desc: 'The high-contrast classic. Proven formula for reaction strikes in stained water.', img: 'IMG_0566.png' },
+            'shiny-red': { name: 'The Skärgård: Shiny Red (4")', price: 6.99, desc: 'Internal metallic flakes for maximum flash and UV reflection. Ideal for clear water presentations.', img: 'IMG_1866.png' },
+            'black-silver': { name: 'The Skärgård: Black & Silver (6")', price: 9.25, desc: 'Highly realistic baitfish imitation. Perfect for mimicking herring and small prey fish in clear water.', img: 'IMG_2130.HEIC' },
+            'black-orange': { name: 'The Skärgård: Fireline (4")', price: 7.50, desc: 'An aggressive pattern with a striking orange lateral line. Excellent visibility for dark, deep, or cloudy water.', img: 'IMG_2133.HEIC' },
+            'blue-pink': { name: 'The Skärgård: Blue & Pink Herring (6")', price: 8.99, desc: 'A translucent pink belly with a dark blue back. A highly effective blend of natural and attractant colors.', img: 'IMG_2136.HEIC' },
+            'deep-teal': { name: 'The Skärgård: Deep Teal Blue (4")', price: 6.75, desc: 'A solid, dark-hued bait with an attractive iridescent shimmer. Ideal for diving presentations and low light.', img: 'IMG_2134.HEIC' },
+        };
+
+        const currentProductId = new URLSearchParams(window.location.search).get('id');
+        let currentProduct = PRODUCTS[currentProductId] || { name: 'Unknown Product', price: 0.00, desc: 'Product data not found.', img: 'https://placehold.co/400x400/2e2e2e/ffffff?text=Error' };
+        
+        // --- 2. UI DISPLAY ---
+        
+        function updateProductUI() {
+            document.getElementById('page-title').textContent = currentProduct.name;
+            document.getElementById('product-name').textContent = currentProduct.name;
+            document.getElementById('product-price').textContent = `${currentProduct.price.toFixed(2)} SEK`;
+            document.getElementById('product-description').textContent = currentProduct.desc;
+            const imgEl = document.getElementById('product-img');
+            imgEl.src = currentProduct.img;
+            // Fallback for image loading error
+            imgEl.onerror = () => imgEl.src = `https://placehold.co/400x400/A00000/ffffff?text=${encodeURIComponent(currentProduct.name)}`;
+        }
+        
+        // --- 3. FIREBASE SETUP AND AUTH ---
+        
+        function initFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                    } else {
+                        // Sign in anonymously if no token provided
+                        if (!initialAuthToken) {
+                            const anonUser = await signInAnonymously(auth);
+                            userId = anonUser.user.uid;
+                        }
+                    }
+                    if (userId) {
+                        document.getElementById('user-id').textContent = userId;
+                        setupCartListener();
+                        document.getElementById('add-to-cart-btn').disabled = false;
+                    }
+                });
+
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken).catch(error => {
+                        console.error("Custom token sign-in failed:", error);
+                        signInAnonymously(auth); // Fallback
+                    });
+                } else {
+                    signInAnonymously(auth);
+                }
+
+            } catch (error) {
+                console.error("Firebase initialization error:", error);
+                document.getElementById('user-id').textContent = 'Error during initialization.';
+            }
+        }
+
+        // --- 4. CART LOGIC (FIRESTORE) ---
+
+        /**
+         * Sets up a real-time listener for the user's cart and updates the UI.
+         */
+        function setupCartListener() {
+            if (!db || !userId) return;
+
+            // Cart data is stored in a subcollection unique to the user
+            const cartRef = collection(db, 'artifacts', appId, 'users', userId, 'cart_items');
+            
+            onSnapshot(cartRef, (snapshot) => {
+                let totalItems = 0;
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+                    totalItems += item.quantity || 0;
+                });
+                document.getElementById('cart-item-count').textContent = totalItems;
+                console.log(`Cart updated. Total items: ${totalItems}`);
+            }, (error) => {
+                console.error("Error listening to cart:", error);
+            });
+        }
+        
+        /**
+         * Adds the current product to the user's cart or increments its quantity.
+         */
+        async function addToCart() {
+            if (!db || !userId) {
+                console.error("Database or User ID not ready.");
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById('quantity').value, 10) || 1;
+            if (quantity < 1) return;
+
+            // Use the product ID as the document ID for easy lookup and uniqueness
+            const cartItemRef = doc(db, 'artifacts', appId, 'users', userId, 'cart_items', currentProductId);
+            
+            try {
+                // Check if the item already exists to determine if we should increment or set
+                const docSnap = await getDoc(cartItemRef);
+                
+                if (docSnap.exists()) {
+                    // Item exists, increment the quantity
+                    await updateDoc(cartItemRef, {
+                        quantity: docSnap.data().quantity + quantity
+                    });
+                    console.log(`Incremented ${currentProduct.name} by ${quantity}`);
+                } else {
+                    // Item does not exist, set new document
+                    await setDoc(cartItemRef, {
+                        id: currentProductId,
+                        name: currentProduct.name,
+                        price: currentProduct.price,
+                        quantity: quantity,
+                        addedAt: new Date().toISOString()
+                    });
+                    console.log(`Added ${currentProduct.name} to cart.`);
+                }
+                
+                // Clear the quantity input after successful add
+                document.getElementById('quantity').value = 1;
+
+            } catch (e) {
+                console.error("Error adding document to cart: ", e);
+            }
+        }
+
+        // --- 5. INITIALIZATION ---
+
+        window.onload = function() {
+            updateProductUI();
+            initFirebase();
+            
+            document.getElementById('add-to-cart-btn').addEventListener('click', addToCart);
+            document.getElementById('add-to-cart-btn').disabled = true; // Disable until auth is complete
+            
+            // NOTE: The 'Go to Checkout (Temporary Link)' button still links to order.html
+            // The next step in development would be to modify order.html to fetch items
+            // from the Firestore cart collection instead of using URL parameters.
+        };
+    </script>
+</body>
+</html>
