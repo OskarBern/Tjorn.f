@@ -55,10 +55,10 @@ textarea{min-height:90px; resize:vertical}
 
   <div class="layout">
 
-    <!-- LEFT: Customer details -->
+    <!-- LEFT PANEL -->
     <section class="card">
       <h1>Checkout</h1>
-      <p class="small">Fill in your details. We compute shipping automatically based on ZIP & country.</p>
+      <p class="small">Fill in your details. Shipping is added automatically.</p>
 
       <h2>Contact & Shipping</h2>
 
@@ -84,11 +84,11 @@ textarea{min-height:90px; resize:vertical}
         <button id="clear" class="btn ghost">Clear Cart</button>
       </div>
 
-      <div id="status" class="confirm" role="status"></div>
-      <p class="footer-note">After preparing, tap <strong>Open Swish</strong> on your phone or copy the amount & message to paste into Swish.</p>
+      <div id="status" class="confirm"></div>
+      <p class="footer-note">Then copy the amount & message or tap “Open Swish” on mobile.</p>
     </section>
 
-    <!-- RIGHT: Order summary & Swish actions -->
+    <!-- RIGHT PANEL -->
     <aside class="card">
       <h2>Your Order</h2>
 
@@ -105,23 +105,20 @@ textarea{min-height:90px; resize:vertical}
       </div>
 
       <div style="margin-top:14px">
-        <div class="small">Pay to Swish number</div>
+        <div class="small">Swish number</div>
         <div style="font-weight:800;margin-top:6px">+49 15223541838</div>
-        <div class="notice">Deep link works on mobile (attempts to open the Swish app). Desktop users should copy amount & message manually.</div>
-                    <img src="Image.heic" alt="Skärgård Shiny Red Lure Main View">
+                    <img src="Image.heic" alt="Skärgård Black & Silver Shiner Lure Main 
 
         <div class="copy-row">
           <button id="copyAmount" class="btn ghost">Copy amount</button>
-          <button id="copyMessage" class="btn">Copy payment message</button>
-          <button id="openSwish" class="btn">Open Swish (mobile)</button>
+          <button id="copyMessage" class="btn">Copy message</button>
+          <button id="openSwish" class="btn">Open Swish</button>
         </div>
 
         <div style="margin-top:12px">
-          <div class="small">Payment message (MANDATORY NEEDS TO BE ADDED TO PAYMENT MESSAGE!)</div>
-          <textarea id="paymentMessage" readonly style="width:100%;height:110px;margin-top:8px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.03);color:var(--text);padding:10px"></textarea>
+          <div class="small">Message sent with payment</div>
+          <textarea id="paymentMessage" readonly></textarea>
         </div>
-
-        <div id="paidConfirm" class="confirm" style="display:none">Marked as paid locally. If you received a Swish receipt, keep it and contact support if needed.</div>
       </div>
     </aside>
 
@@ -129,40 +126,46 @@ textarea{min-height:90px; resize:vertical}
 </div>
 
 <script>
-/* ---------------------------
-  Configuration
-----------------------------*/
-const SWISH_NUMBER = "+49 15223541838"; // your number (display only)
-const SWISH_NUMBER_FOR_LINK = "+4915223541838"; // no spaces for deep link payload
+/* --- CONFIG --- */
+const SWISH_NUMBER = "+49 15223541838"; 
+const SWISH_NUMBER_FOR_LINK = "A+4915223541838"; // ★ UPDATED ★
 
-/* ---------------------------
-  Utilities
-----------------------------*/
+/* --- HELPERS --- */
 function safeNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function fmtSEK(n){ return n.toFixed(2) + " SEK"; }
 function el(id){ return document.getElementById(id); }
 
-/* ---------------------------
-  Read cart and render
-  Expects cart items with:
-  { name, size, price, quantity, image? }
-----------------------------*/
+/* --- CART LOAD & RENDER --- */
 function readCart(){ 
   try { return JSON.parse(localStorage.getItem("cart") || "[]"); }
   catch(e){ return []; }
+}
+
+function escapeHtml(str){
+  if(typeof str !== "string") return str;
+  return str.replace(/[&<>"']/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+  );
 }
 
 function renderCart(){
   const cart = readCart();
   const list = el("cartList");
   list.innerHTML = "";
-  if(!cart.length){ list.innerHTML = "<div class='small'>Your cart is empty.</div>"; el("shippingCost").textContent = "0.00 SEK"; el("totalCost").textContent = "0.00 SEK"; el("paymentMessage").value = ""; return; }
+
+  if(!cart.length){
+    list.innerHTML = "<div class='small'>Your cart is empty.</div>";
+    el("totalCost").textContent = "0.00 SEK";
+    el("shippingCost").textContent = "0.00 SEK";
+    return;
+  }
 
   let total = 0;
+
   cart.forEach(item => {
     const price = safeNum(item.price);
     const qty = Math.max(1, safeNum(item.quantity));
-    const size = item.size || item.option || "";
+    const size = item.size || "";
     const line = price * qty;
     total += line;
 
@@ -171,7 +174,7 @@ function renderCart(){
     row.innerHTML = `
       <div class="thumb">🎣</div>
       <div class="meta">
-        <div class="title">${escapeHtml(item.name || "Product")}</div>
+        <div class="title">${escapeHtml(item.name)}</div>
         <div class="opt">${escapeHtml(size)}</div>
         <div class="price">${price.toFixed(2)} SEK × ${qty}</div>
       </div>
@@ -179,17 +182,13 @@ function renderCart(){
     list.appendChild(row);
   });
 
-  // store base total for later
   el("cartList").dataset.baseTotal = total.toFixed(2);
-  // initial totals
   updateTotals();
 }
 
-/* ---------------------------
-  Shipping rules
-----------------------------*/
-function getShippingFor(countryValue){
-  switch((countryValue||"").toLowerCase()){
+/* --- SHIPPING --- */
+function getShippingFor(c){
+  switch(c){
     case "sweden": return 0;
     case "germany": return 15;
     case "eu": return 25;
@@ -198,158 +197,85 @@ function getShippingFor(countryValue){
   }
 }
 
-/* ---------------------------
-  Build payment message in the requested format:
-  "Shiny Red (Small) x2, Fireline (Large) x1 — Name: Marcus — Address: Street 12, 40210 Düsseldorf"
-----------------------------*/
+/* --- PAYMENT MESSAGE BUILDER --- */
 function buildPaymentMessage(){
   const cart = readCart();
   const name = el("name").value.trim() || "[Name]";
   const address = el("address").value.trim() || "[Address]";
-  let parts = [];
 
-  cart.forEach(item => {
+  const items = cart.map(item => {
     const qty = Math.max(1, safeNum(item.quantity));
-    const size = item.size || item.option || "";
-    const sizeFragment = size ? ` (${size})` : "";
-    parts.push(`${escapeHtml(item.name)}${sizeFragment} x${qty}`);
-  });
+    const size = item.size ? ` (${item.size})` : "";
+    return `${item.name}${size} x${qty}`;
+  }).join(", ");
 
-  // join with commas, then long dash and details
-  const prodPart = parts.join(", ");
-  const message = `${prodPart} — Name: ${name} — Address: ${address}`;
-  return message;
+  return `${items} — Name: ${name} — Address: ${address}`;
 }
 
-/* ---------------------------
-  Totals & updating
-----------------------------*/
+/* --- TOTALS --- */
 function updateTotals(){
   const base = Number(el("cartList").dataset.baseTotal) || 0;
-  const country = el("country").value;
-  const shipping = getShippingFor(country);
+  const shipping = getShippingFor(el("country").value);
   const total = base + shipping;
 
   el("shippingCost").textContent = fmtSEK(shipping);
   el("totalCost").textContent = fmtSEK(total);
-
-  // update preview message and amount stored
   el("paymentMessage").value = buildPaymentMessage();
   el("paymentMessage").dataset.amount = total.toFixed(2);
 }
 
-/* ---------------------------
-  Escape html
-----------------------------*/
-function escapeHtml(str){
-  if(typeof str !== "string") return str;
-  return str.replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); });
-}
+/* --- COPY BUTTONS --- */
+function copyText(t){ return navigator.clipboard.writeText(t); }
 
-/* ---------------------------
-  Copy helpers
-----------------------------*/
-function copyText(text){
-  return navigator.clipboard.writeText(text);
-}
+el("copyAmount").addEventListener("click", ()=>{
+  const amount = el("paymentMessage").dataset.amount;
+  copyText(amount+" SEK");
+  alert("Amount copied.");
+});
 
-/* ---------------------------
-  Deep link builder + open attempt
-  We build a JSON payload and try to open swish://payment?data=<encoded JSON>
-  This works on many mobile devices. We also provide manual copy fallback.
-----------------------------*/
-function buildSwishDeepLink(amountNumber, message){
-  // amountNumber should be number (e.g. 123.45)
-  const payloadObj = {
+el("copyMessage").addEventListener("click", ()=>{
+  copyText(el("paymentMessage").value);
+  alert("Message copied.");
+});
+
+/* --- SWISH DEEP LINK --- */
+function buildSwishDeepLink(amount, message){
+  const payload = {
     version: 1,
-    payee: {value: SWISH_NUMBER_FOR_LINK},
-    amount: Number(amountNumber),
+    payee: { value: SWISH_NUMBER_FOR_LINK },
+    amount: Number(amount),
     message: message
   };
-  const json = JSON.stringify(payloadObj);
-  // encodeURIComponent and build link
-  return "swish://payment?data=" + encodeURIComponent(json);
+  return "swish://payment?data=" + encodeURIComponent(JSON.stringify(payload));
 }
 
-function tryOpenSwish(){
-  const amount = el("paymentMessage").dataset.amount || el("totalCost").textContent.replace(" SEK","") || "0.00";
-  const message = el("paymentMessage").value || "";
-  const deep = buildSwishDeepLink(amount, message);
-
-  // attempt to open (mobile). This will either open Swish or do nothing.
-  window.location.href = deep;
-
-  // As progressive enhancement also open a fallback page after a short delay? We won't redirect.
-}
-
-/* ---------------------------
-  Event wiring
-----------------------------*/
-document.getElementById("country").addEventListener("change", function(){
-  updateTotals();
+el("openSwish").addEventListener("click", ()=>{
+  const msg = el("paymentMessage").value;
+  const amount = el("paymentMessage").dataset.amount;
+  window.location.href = buildSwishDeepLink(amount, msg);
 });
 
-el("zip").addEventListener("input", function(){
-  // No complex geo lookup — user chooses country themselves; we still update
-  // You could add auto-detection by ZIP with an API in the future.
-  updateTotals();
-});
-
-el("name").addEventListener("input", updateTotals);
-el("address").addEventListener("input", updateTotals);
-
-document.getElementById("copyAmount").addEventListener("click", function(){
-  const amount = el("paymentMessage").dataset.amount || el("totalCost").textContent.replace(" SEK","") || "0.00";
-  copyText(amount).then(()=> { alert("Amount copied: " + amount + " SEK"); }, ()=> { alert("Couldn't copy automatically, select and copy manually."); });
-});
-
-document.getElementById("copyMessage").addEventListener("click", function(){
-  const msg = el("paymentMessage").value || "";
-  copyText(msg).then(()=> { alert("Payment message copied. Paste it in Swish."); }, ()=> { alert("Couldn't copy automatically, select and copy manually."); });
-});
-
-document.getElementById("openSwish").addEventListener("click", function(e){
-  // ensure required fields are present
-  const name = el("name").value.trim();
-  const address = el("address").value.trim();
-  if(!name || !address){
-    alert("Please enter your name and address before opening Swish.");
-    return;
-  }
-  tryOpenSwish();
-});
-
-document.getElementById("prepare").addEventListener("click", function(){
-  const name = el("name").value.trim();
-  const address = el("address").value.trim();
-  if(!name || !address){
-    alert("Please enter your name and address before preparing payment.");
+/* --- PREPARE PAYMENT --- */
+el("prepare").addEventListener("click", ()=>{
+  if(!el("name").value.trim() || !el("address").value.trim()){
+    alert("Please enter name and address first.");
     return;
   }
   updateTotals();
   el("status").style.display = "block";
-  el("status").textContent = "Payment prepared. Copy the amount and message or open Swish on your phone.";
-  setTimeout(()=> el("status").style.display = "none", 8000);
+  el("status").textContent = "Payment prepared!";
+  setTimeout(()=> el("status").style.display="none", 3000);
 });
 
-document.getElementById("clear").addEventListener("click", function(){
-  if(!confirm("Clear cart? This removes cart items stored in your browser.")) return;
-  localStorage.removeItem("cart");
-  renderCart();
-  updateTotals();
-  el("status").style.display = "block";
-  el("status").textContent = "Cart cleared.";
-  setTimeout(()=> el("status").style.display = "none", 4000);
+/* --- CLEAR CART --- */
+el("clear").addEventListener("click", ()=>{
+  if(confirm("Clear cart?")){
+    localStorage.removeItem("cart");
+    renderCart();
+  }
 });
 
-/* paid button — marking as paid locally (non-authoritative) */
-document.getElementById("openSwish").addEventListener("dblclick", function(){
-  // double-click opens and then shows confirmation prompt — optional behaviour
-});
-
-/* ---------------------------
-  Init
-----------------------------*/
+/* --- INIT --- */
 renderCart();
 updateTotals();
 </script>
