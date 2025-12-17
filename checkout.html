@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Checkout — TJÖRN FINESSE</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --accent:#c62828;
+  --muted:#9aa0a6;
+  --bg:#0f0f10;
+  --card:#0f0f10;
+  --text:#fff;
+  --box:#111;
+}
+html,body{height:100%;margin:0;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b0b0b;color:var(--text)}
+.container{max-width:1100px;margin:28px auto;padding:20px}
+.header{display:flex;align-items:center;gap:20px;margin-bottom:18px}
+.logo{font-family:Oswald,sans-serif;font-weight:700;color:#fff;font-size:20px;text-decoration:none}
+.layout{display:grid;grid-template-columns:1fr 420px;gap:28px}
+@media (max-width:940px){ .layout{grid-template-columns:1fr;padding:0 10px} }
+.card{background:#0f1112;border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+h1{font-family:Oswald;margin:0 0 8px;font-size:28px}
+h2{margin:0 0 12px;font-size:16px}
+label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
+input[type="text"], textarea, select { width:100%; padding:10px 12px; margin-top:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:#0b0b0b; color:var(--text); box-sizing:border-box; font-size:15px }
+textarea{min-height:90px; resize:vertical}
+.small{font-size:13px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer;margin-top:12px}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cart-list{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.cart-item{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;background:#0b0c0d;border:1px solid rgba(255,255,255,0.02)}
+.thumb{width:64px;height:64px;border-radius:8px;background:#111;display:flex;align-items:center;justify-content:center;color:#777}
+.meta{flex:1}
+.title{font-weight:700}
+.opt{color:var(--muted);font-size:13px;margin-top:4px}
+.price{margin-top:8px;font-weight:700}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.03);margin-top:12px}
+.notice{margin-top:12px;color:var(--muted);font-size:13px}
+.confirm{background:#09331b;color:#bff0cb;padding:10px;border-radius:8px;margin-top:12px;display:none}
+.footer-note{margin-top:14px;font-size:13px;color:var(--muted)}
+.link{color:#fff;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <a class="logo" href="index.html">TJÖRN FINESSE</a>
+  </header>
+
+  <div class="layout">
+
+    <section class="card">
+      <h1>Checkout</h1>
+      <p class="small">Fill in your details. Shipping is added automatically.</p>
+
+      <h2>Contact & Shipping</h2>
+
+      <label for="name">Full name</label>
+      <input id="name" type="text" placeholder="Marcus">
+
+      <label for="address">Street & number</label>
+      <input id="address" type="text" placeholder="Street 12">
+
+      <label for="zip">ZIP / Postal code</label>
+      <input id="zip" type="text" placeholder="40210" inputmode="numeric">
+
+      <label for="country">Country</label>
+      <select id="country">
+        <option value="sweden">Sweden</option>
+        <option value="germany">Germany</option>
+        <option value="eu">EU (other)</option>
+        <option value="outside">Outside EU</option>
+      </select>
+
+      <div style="display:flex;gap:10px;margin-top:14px;align-items:center;">
+        <button id="prepare" class="btn">Prepare Payment</button>
+        <button id="clear" class="btn ghost">Clear Cart</button>
+      </div>
+
+      <div id="status" class="confirm"></div>
+      <p class="footer-note">Then copy the amount & message or tap “Open Swish” on mobile.</p>
+    </section>
+
+    <aside class="card">
+      <h2>Your Order</h2>
+
+      <div id="cartList" class="cart-list small"></div>
+
+      <div class="total-row">
+        <div class="small">Shipping</div>
+        <div id="shippingCost" style="font-weight:800">0.00 SEK</div>
+      </div>
+
+      <div class="total-row" style="margin-top:8px">
+        <div class="small">Total</div>
+        <div id="totalCost" style="font-weight:900">0.00 SEK</div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="small">Swish number</div>
+        <div style="font-weight:800;margin-top:6px">+49 15223541838</div>
+
+        <div class="copy-row">
+          <button id="copyAmount" class="btn ghost">Copy amount</button>
+          <button id="copyMessage" class="btn">Copy message</button>
+          <button id="openSwish" class="btn">Open Swish</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">Message sent with payment</div>
+          <textarea id="paymentMessage" readonly></textarea>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<script>
+/* --- CONFIG --- */
+const SWISH_NUMBER = "+49 15223541838"; 
+const SWISH_NUMBER_FOR_LINK = "A+4915223541838";
+
+/* --- HELPERS --- */
+function safeNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+function fmtSEK(n){ return n.toFixed(2) + " SEK"; }
+function el(id){ return document.getElementById(id); }
+
+// Helper for price-based descriptions
+function getPriceBasedDescription(price, currentSize) {
+    const p = safeNum(price);
+    if (p === 110) return "one pack big 15cm";
+    if (p === 120) return "two pack small 9cm";
+    return currentSize || "Standard Size";
+}
+
+/* --- CART LOAD & RENDER --- */
+function readCart(){ 
+  try { return JSON.parse(localStorage.getItem("cart") || "[]"); }
+  catch(e){ return []; }
+}
+
+function escapeHtml(str){
+  if(typeof str !== "string") return str;
+  return str.replace(/[&<>"']/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+  );
+}
+
+function renderCart(){
+  const cart = readCart();
+  const list = el("cartList");
+  list.innerHTML = "";
+
+  if(!cart.length){
+    list.innerHTML = "<div class='small'>Your cart is empty.</div>";
+    el("totalCost").textContent = "0.00 SEK";
+    el("shippingCost").textContent = "0.00 SEK";
+    return;
+  }
+
+  let total = 0;
+
+  cart.forEach(item => {
+    const price = safeNum(item.price);
+    const qty = Math.max(1, safeNum(item.quantity));
+    
+    // Updated Logic
+    const displaySize = getPriceBasedDescription(price, item.size);
+    
+    const line = price * qty;
+    total += line;
+
+    const row = document.createElement("div");
+    row.className = "cart-item";
+    row.innerHTML = `
+      <div class="thumb">🎣</div>
+      <div class="meta">
+        <div class="title">${escapeHtml(item.name)}</div>
+        <div class="opt">${escapeHtml(displaySize)}</div>
+        <div class="price">${price.toFixed(2)} SEK × ${qty}</div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+
+  el("cartList").dataset.baseTotal = total.toFixed(2);
+  updateTotals();
+}
+
+/* --- SHIPPING --- */
+function getShippingFor(c){
+  switch(c){
+    case "sweden": return 0;
+    case "germany": return 15;
+    case "eu": return 25;
+    case "outside": return 35;
+    default: return 35;
+  }
+}
+
+/* --- PAYMENT MESSAGE BUILDER --- */
+function buildPaymentMessage(){
+  const cart = readCart();
+  const name = el("name").value.trim() || "[Name]";
+  const address = el("address").value.trim() || "[Address]";
+
+  const items = cart.map(item => {
+    const qty = Math.max(1, safeNum(item.quantity));
+    // Updated Logic for the Swish message description
+    const displaySize = getPriceBasedDescription(item.price, item.size);
+    return `${item.name} (${displaySize}) x${qty}`;
+  }).join(", ");
+
+  return `${items} — Name: ${name} — Address: ${address}`;
+}
+
+/* --- TOTALS --- */
+function updateTotals(){
+  const base = Number(el("cartList").dataset.baseTotal) || 0;
+  const shipping = getShippingFor(el("country").value);
+  const total = base + shipping;
+
+  el("shippingCost").textContent = fmtSEK(shipping);
+  el("totalCost").textContent = fmtSEK(total);
+  el("paymentMessage").value = buildPaymentMessage();
+  el("paymentMessage").dataset.amount = total.toFixed(2);
+}
+
+/* --- COPY BUTTONS --- */
+function copyText(t){ return navigator.clipboard.writeText(t); }
+
+el("copyAmount").addEventListener("click", ()=>{
+  const amount = el("paymentMessage").dataset.amount;
+  copyText(amount+" SEK");
+  alert("Amount copied.");
+});
+
+el("copyMessage").addEventListener("click", ()=>{
+  copyText(el("paymentMessage").value);
+  alert("Message copied.");
+});
+
+/* --- SWISH DEEP LINK --- */
+function buildSwishDeepLink(amount, message){
+  const payload = {
+    version: 1,
+    payee: { value: SWISH_NUMBER_FOR_LINK },
+    amount: Number(amount),
+    message: message
+  };
+  return "swish://payment?data=" + encodeURIComponent(JSON.stringify(payload));
+}
+
+el("openSwish").addEventListener("click", ()=>{
+  const msg = el("paymentMessage").value;
+  const amount = el("paymentMessage").dataset.amount;
+  window.location.href = buildSwishDeepLink(amount, msg);
+});
+
+/* --- PREPARE PAYMENT --- */
+el("prepare").addEventListener("click", ()=>{
+  if(!el("name").value.trim() || !el("address").value.trim()){
+    alert("Please enter name and address first.");
+    return;
+  }
+  updateTotals();
+  el("status").style.display = "block";
+  el("status").textContent = "Payment prepared!";
+  setTimeout(()=> el("status").style.display="none", 3000);
+});
+
+/* --- CLEAR CART --- */
+el("clear").addEventListener("click", ()=>{
+  if(confirm("Clear cart?")){
+    localStorage.removeItem("cart");
+    renderCart();
+  }
+});
+
+/* --- INIT --- */
+renderCart();
+updateTotals();
+</script>
+
+</body>
+</html>

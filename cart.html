@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<header>
+    <div class="container">
+        <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+        <nav>
+            <a href="index.html#lure-showcase">The Skärgård Shop</a>
+            <a href="rigging-guide.html">Rigging Guide</a>
+            <a href="about-us.html">Our Story</a>
+            <a href="shipping-returns.html">Shipping & Returns</a>
+            <a href="contact.html">Contact</a>
+            <a href="cart.html">Cart</a>
+        </nav>
+    </div>
+</header>
+
+<section class="container">
+    <h1>Your Cart</h1>
+    <div id="cart-items"></div>
+
+    <h2 id="total"></h2>
+
+    <a href="checkout.html" class="btn primary">Go to Checkout</a>
+</section>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved. | 
+        <a href="shipping-returns.html">Shipping & Returns</a> | 
+        <a href="contact.html">Contact</a></p>
+    </div>
+</footer>
+
+<script>
+// ---------------- CART PAGE SCRIPT ----------------
+
+// Load cart
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+// Render cart
+function renderCart() {
+    const cartBox = document.getElementById("cart-items");
+    const totalBox = document.getElementById("total");
+
+    if (cart.length === 0) {
+        cartBox.innerHTML = "<p>Your cart is empty.</p>";
+        totalBox.innerText = "";
+        return;
+    }
+
+    let html = "<ul>";
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        const price = Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 1;
+        const name = item.name || "Product";
+        
+        // Logic to set the description based on the price
+        let displaySize = item.size || "Standard Size";
+
+        if (price === 110) {
+            displaySize = "one pack big 15cm";
+        } else if (price === 120) {
+            displaySize = "two pack small 9cm";
+        }
+
+        html += `
+            <li>
+                <strong>${name}</strong><br>
+                ${displaySize} — SEK${price.toFixed(2)} × ${quantity}
+                <button onclick="removeItem(${index})" style="margin-left:10px;">Remove</button>
+            </li>
+        `;
+
+        total += price * quantity;
+    });
+
+    html += "</ul>";
+
+    cartBox.innerHTML = html;
+    totalBox.innerText = "Total: Sek" + total.toFixed(2);
+}
+
+// Remove item
+function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+}
+
+// Initialize
+renderCart();
+</script>
+
+</body>
+</html>

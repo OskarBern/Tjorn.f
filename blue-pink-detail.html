@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skärgård: Blue & Pink Herring - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        .cart-count { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+            <nav>
+                <a href="index.html#lure-showcase">The Skärgård Shop</a>
+                <a href="rigging-guide.html">Rigging Guide</a>
+                <a href="about-us.html">Our Story</a>
+                <a href="shipping-returns.html">Shipping & Returns</a>
+                <a href="contact.html">Contact</a>
+                <a href="cart.html">Cart (<span class="cart-count">0</span>)</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="product-detail-page container">
+        <div class="product-layout">
+            <div class="gallery">
+                <div class="main-image-placeholder">
+                    <img src="IMG_2136.HEIC" alt="Skärgård Blue & Pink Herring Lure Main View">
+                </div>
+                <div class="thumbnail-row">
+                    <div><img src="IMG_2137.HEIC" alt="Blue & Pink Gills Close-up"></div>
+                    <div><img src="IMG_2139.HEIC" alt="Blue & Pink Nose View"></div>
+                    <div>[Underwater]</div>
+                </div>
+            </div>
+
+            <div class="purchase-info">
+                <h1>The Skärgård: Blue & Pink Herring</h1>
+                <p class="price-tag">110Sek - 120Sek</p>
+
+                <div class="selector-group">
+                    <label>SIZE / PACK:</label>
+                    <select id="product-option">
+                        <option value="120Sek">Small (9cm, 2-pack) - 120Sek</option>
+                        <option value="110Sek">Large (15cm, 1-pack) - 110Sek</option>
+                    </select>
+                </div>
+
+                <a href="#" class="btn primary add-to-cart-btn">Add To Cart</a>
+
+                <h3 class="product-subtitle">Product Overview</h3>
+                <p>A stunning color profile that features a natural dark blue/teal back for concealment and a vibrant, translucent pink belly for maximum visibility when flashed. This pattern is exceptionally effective for targeting predatory fish feeding on baitfish.</p>
+                
+                <h3 class="product-subtitle">Key Features</h3>
+                <ul class="key-features-list">
+                    <li>• Dual Action Color: Natural concealment from above, striking pink visibility from below.</li>
+                    <li>• UV Pink Belly: Increases effectiveness in low-light and deep water.</li>
+                    <li>• Best for: Clear to slightly stained water, open water jigging.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved. | <a href="shipping-returns.html">Shipping & Returns</a> | <a href="contact.html">Contact</a></p>
+        </div>
+    </footer>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelector('.cart-count').textContent = count;
+        }
+
+        function addToCart(product) {
+            const exists = cart.find(item => item.name === product.name && item.option === product.option);
+            if (exists) {
+                exists.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            saveCart();
+            alert(`Added to cart: ${product.name} - ${product.option}`);
+        }
+
+        document.querySelector('.add-to-cart-btn').addEventListener('click', e => {
+            e.preventDefault();
+            const name = document.querySelector('h1').textContent;
+            const select = document.getElementById('product-option');
+            const optionText = select.options[select.selectedIndex].text;
+            const price = parseFloat(select.value);
+
+            addToCart({ name, option: optionText, price });
+        });
+
+        updateCartCount();
+    </script>
+</body>
+</html>
