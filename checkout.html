@@ -70,7 +70,7 @@ textarea{min-height:90px; resize:vertical}
 
       <label for="country">Country</label>
       <select id="country">
-        <option value="sweden">Sweden (Free)</option>
+        <option value="sweden">Sweden (20 SEK)</option>
         <option value="germany">Germany (15 SEK)</option>
         <option value="eu">EU (25 SEK)</option>
         <option value="outside">Outside EU (35 SEK)</option>
@@ -164,9 +164,10 @@ function renderCart(){
   updateTotals();
 }
 
+/* --- UPDATED SHIPPING LOGIC --- */
 function getShippingFor(c){
   switch(c){
-    case "sweden": return 0;
+    case "sweden": return 20; // Changed from 0 to 20
     case "germany": return 15;
     case "eu": return 25;
     case "outside": return 35;
@@ -182,7 +183,6 @@ function updateTotals(){
   el("shippingCost").textContent = fmtSEK(shipping);
   el("totalCost").textContent = fmtSEK(total);
   
-  // Build Description for PayPal
   const cart = readCart();
   const itemsDesc = cart.map(i => `${i.name} (${getPriceBasedDescription(i.price, i.size)}) x${i.quantity}`).join(", ");
   el("paymentMessage").value = `Shipping to: ${el("name").value || '...'} | Items: ${itemsDesc}`;
@@ -205,9 +205,10 @@ function initPayPal() {
         },
         onApprove: function(data, actions) {
             return actions.order.capture().then(function(details) {
-                alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                // Clear the cart after payment
                 localStorage.removeItem("cart");
-                window.location.href = "index.html";
+                // Redirect to the success page
+                window.location.href = "success.html";
             });
         },
         onError: function(err) {
