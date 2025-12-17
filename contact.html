@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- NAVIGATION & UI STYLES --- */
+        :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
+
+        nav { display: flex; align-items: center; gap: 25px; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { 
+            background: none; border: none; color: white; 
+            font-family: 'Montserrat'; font-weight: 600; cursor: pointer; 
+            text-transform: uppercase; font-size: 14px; letter-spacing: 1px;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #1a1a1a;
+            min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red);
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #ccc; padding: 12px 15px; text-decoration: none;
+            display: block; font-size: 13px; transition: 0.3s; text-align: left;
+        }
+        .dropdown-content a:hover { background: #252525; color: white; padding-left: 20px; }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden; min-width: 280px; background-color: #1a1a1a;
+            color: #fff; text-align: center; border-radius: 4px;
+            padding: 16px; position: fixed; z-index: 2000;
+            left: 50%; bottom: 30px; transform: translateX(-50%);
+            border: 1px solid #333; border-bottom: 3px solid var(--brand-red);
+            font-family: 'Montserrat'; font-size: 14px;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        .cart-count { font-weight: bold; }
+        .contact-value { color: var(--brand-red); text-decoration: none; font-weight: 600; font-size: 1.1rem; }
+        .contact-value:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+            <nav>
+                <div class="dropdown">
+                    <button class="dropdown-btn">BROWSE SHOP ▼</button>
+                    <div class="dropdown-content">
+                        <a href="index.html#lure-showcase">The Skärgård Collection</a>
+                        <a href="index.html#hooks-hardware">Hooks & Hardware</a>
+                        <a href="rigging-guide.html">Rigging Guide</a>
+                        <a href="about-us.html">Our Story</a>
+                        <a href="contact.html">Contact Us</a>
+                    </div>
+                </div>
+                <a href="cart.html" id="cartLink" style="color:var(--brand-red); font-weight:700;">
+                    Cart (<span class="cart-count">0</span>)
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-content container">
+        <h2 class="page-title">Get In Touch</h2>
+        
+        <div class="contact-details-block">
+            <p>Have a question about rigging, an order, or just want to talk fishing? We're here to help.</p>
+
+            <div class="contact-info-item">
+                <p class="contact-label">Email Support</p>
+                <a href="mailto:tjorn.finesse@gmail.com" class="contact-value">
+                    tjorn.finesse@gmail.com
+                </a>
+            </div>
+            
+            <div class="contact-info-item">
+                <p class="contact-label">Phone / WhatsApp</p>
+                <a href="tel:+4915223541838" class="contact-value">
+                    +49 1522 3541838
+                </a>
+            </div>
+        </div>
+
+        <div class="contact-form-placeholder">
+            <h3 class="form-title">Send Us a Message</h3>
+
+            <form id="contactForm" action="https://formspree.io/f/mvgellwq" method="POST">
+                <input type="hidden" name="_subject" value="New Contact Inquiry - TJÖRN FINESSE">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <textarea name="message" placeholder="Your Message" required style="min-height: 150px;"></textarea>
+
+                <button class="btn primary" type="submit">
+                    Send Inquiry
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div id="toast">Message Sent Successfully!</div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved | 
+                <a href="shipping-returns.html">Shipping & Returns</a> | 
+                <a href="contact.html">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // --- TOAST SYSTEM --- //
+        function showToast(message) {
+            const t = document.getElementById("toast");
+            t.textContent = message;
+            t.className = "show";
+            setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+        }
+
+        // --- CART COUNT --- //
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelectorAll('.cart-count').forEach(el => el.textContent = count);
+        }
+
+        // --- FORM HANDLING --- //
+        const form = document.getElementById('contactForm');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            fetch(form.action, {
+                method: form.method,
+                body: new FormData(form),
+                headers: { 'Accept': 'application/json' }
+            }).then(response => {
+                if (response.ok) {
+                    showToast("Inquiry sent! We'll reply shortly.");
+                    form.reset();
+                } else {
+                    showToast("Error. Please try again later.");
+                }
+            }).catch(() => {
+                showToast("Connection error. Try again.");
+            });
+        });
+
+        updateCartCount();
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Story - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- NAVIGATION & UI STYLES --- */
+        :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
+
+        nav { display: flex; align-items: center; gap: 25px; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { 
+            background: none; border: none; color: white; 
+            font-family: 'Montserrat'; font-weight: 600; cursor: pointer; 
+            text-transform: uppercase; font-size: 14px; letter-spacing: 1px;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #1a1a1a;
+            min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red);
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #ccc; 
+            padding: 12px 15px; 
+            text-decoration: none;
+            display: block; 
+            font-size: 13px; 
+            transition: 0.3s;
+            text-align: left;
+        }
+        .dropdown-content a:hover { 
+            background: #252525; color: white; padding-left: 20px; 
+        }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        .cart-count { font-weight: bold; }
+
+        /* Ensuring the story layout looks clean */
+        .page-content { padding-top: 60px; padding-bottom: 80px; }
+        .center-heading { margin-bottom: 40px; }
+        blockquote {
+            border-left: 4px solid var(--brand-red);
+            padding-left: 20px;
+            font-style: italic;
+            margin: 30px 0;
+            font-size: 1.2rem;
+            color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+            <nav>
+                <div class="dropdown">
+                    <button class="dropdown-btn">BROWSE SHOP ▼</button>
+                    <div class="dropdown-content">
+                        <a href="index.html#lure-showcase">The Skärgård Collection</a>
+                        <a href="index.html#hooks-hardware">Hooks & Hardware</a>
+                        <a href="rigging-guide.html">Rigging Guide</a>
+                        <a href="about-us.html">Our Story</a>
+                        <a href="contact.html">Contact Us</a>
+                    </div>
+                </div>
+                <a href="cart.html" id="cartLink" style="color:var(--brand-red); font-weight:700;">
+                    Cart (<span class="cart-count">0</span>)
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-content container">
+        <h2 class="center-heading">Our Mission: Engineered Precision.</h2>
+        
+        <div class="about-section-1">
+            <div class="text-block">
+                <p>At **TJÖRN FINESSE**, we believe that the most effective fishing tools are born from **minimalist design and rigorous engineering**. Our mission is to create soft plastic lures that eliminate the guesswork, offering anglers a **reliable, high-performance path** to success.</p>
+                
+                <p>Inspired by the rugged simplicity of the Swedish coast near Tjörn, our lures are meticulously formulated for **hydro-dynamic accuracy and extreme durability**. We focus on perfecting a select few baits, ensuring every **Skärgård Series** lure you tie on is a product of precision, not chance.</p>
+                
+                <blockquote>"TJÖRN FINESSE: The deliberate path to the strike."</blockquote>
+            </div>
+            <div class="image-wrapper">
+                <img src="IMG_0588.jpeg" alt="Fishing from a wooden dock in Sweden">
+            </div>
+        </div>
+
+        <h2 class="center-heading">The Craft Behind the Catch</h2>
+
+        <div class="about-section-2">
+            <div class="image-wrapper">
+                <img src="IMG_1777.jpeg" alt="Lure making process with molds">
+            </div>
+            <div class="text-block">
+                <p>Every Tjörn Finesse lure begins with an idea, inspired by real fishing challenges and honed through meticulous testing. Our process combines **traditional craftsmanship with modern material science**, ensuring each lure not only looks exceptional but performs flawlessly under demanding conditions.</p>
+                <p>From initial mold creation to the final pour of our proprietary, durable polymer, quality control is paramount. We believe in transparency and the value of a truly handmade product, bringing you lures designed to last and to outsmart the most elusive fish.</p>
+            </div>
+        </div>
+
+        <h2 class="center-heading">Experience the Waters</h2>
+
+        <div class="about-section-3">
+            <img src="IMG_1869.jpeg" alt="Angler fishing in a river" style="width: 100%; border-radius: 8px; margin-bottom: 20px;">
+            <p>Whether on the serene archipelagos of Sweden or your local fishing spots, Tjörn Finesse lures are engineered to elevate your experience. Join us in the pursuit of precision, skill, and unforgettable catches.</p>
+        </div>
+
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved. | <a href="shipping-returns.html">Shipping & Returns</a> | <a href="contact.html">Contact</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // --- CART DISPLAY LOGIC --- //
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCounts = document.querySelectorAll('.cart-count');
+            cartCounts.forEach(el => el.textContent = count);
+        }
+
+        // Initialize on load
+        updateCartCount();
+        
+        // Listen for storage changes (if user adds to cart in another tab)
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping & Returns - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- NAVIGATION & UI STYLES --- */
+        :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
+
+        nav { display: flex; align-items: center; gap: 25px; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { 
+            background: none; border: none; color: white; 
+            font-family: 'Montserrat'; font-weight: 600; cursor: pointer; 
+            text-transform: uppercase; font-size: 14px; letter-spacing: 1px;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #1a1a1a;
+            min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red);
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #ccc; 
+            padding: 12px 15px; 
+            text-decoration: none;
+            display: block; 
+            font-size: 13px; 
+            transition: 0.3s;
+            text-align: left;
+        }
+        .dropdown-content a:hover { 
+            background: #252525; color: white; padding-left: 20px; 
+        }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        .cart-count { font-weight: bold; }
+
+        /* Policy Specific Styles */
+        .page-content { padding-top: 60px; padding-bottom: 80px; }
+        .policy-section { margin-bottom: 50px; }
+        .policy-list { list-style: none; padding: 0; margin-top: 20px; }
+        .policy-list li { margin-bottom: 15px; line-height: 1.6; color: #ccc; position: relative; padding-left: 20px; }
+        .policy-list li::before { content: "•"; color: var(--brand-red); position: absolute; left: 0; font-weight: bold; }
+        .policy-section a { color: var(--brand-red); text-decoration: none; font-weight: 600; }
+        .policy-section a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+            <nav>
+                <div class="dropdown">
+                    <button class="dropdown-btn">BROWSE SHOP ▼</button>
+                    <div class="dropdown-content">
+                        <a href="index.html#lure-showcase">The Skärgård Collection</a>
+                        <a href="index.html#hooks-hardware">Hooks & Hardware</a>
+                        <a href="rigging-guide.html">Rigging Guide</a>
+                        <a href="about-us.html">Our Story</a>
+                        <a href="contact.html">Contact Us</a>
+                    </div>
+                </div>
+                <a href="cart.html" id="cartLink" style="color:var(--brand-red); font-weight:700;">
+                    Cart (<span class="cart-count">0</span>)
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-content container">
+        <h2 class="page-title">Shipping & Returns Policy</h2>
+
+        <div class="policy-section">
+            <h3 class="guide-subtitle">Shipping Information</h3>
+            <p>We are dedicated to getting your Tjörn Finesse lures to you swiftly and securely. All orders are processed from our facility in Germany.</p>
+            
+            <ul class="policy-list">
+                <li><strong>Processing Time:</strong> Orders are typically processed and shipped within <strong>2-3 business days</strong>.</li>
+                <li><strong>Domestic Shipping (Germany):</strong> Standard shipping takes 3-5 business days. Express options are available at checkout.</li>
+                <li><strong>International Shipping:</strong> Delivery times vary significantly by destination, ranging from 7-21 business days. Customers are responsible for any applicable customs duties or taxes.</li>
+            </ul>
+        </div>
+
+        <div class="policy-section">
+            <h3 class="guide-subtitle">Return Policy</h3>
+            <p>If you are not 100% satisfied with your purchase, you may return the product for a full refund or exchange.</p>
+            
+            <ul class="policy-list">
+                <li><strong>Eligibility:</strong> Items must be returned within <strong>30 days</strong> of receipt.</li>
+                <li><strong>Condition:</strong> Products must be unused and in their original packaging. We cannot accept returns on items that have been fished.</li>
+                <li><strong>Process:</strong> To initiate a return, please contact us first at <a href="mailto:tjorn.finesse@gmail.com">tjorn.finesse@gmail.com</a> with your order number and reason for the return.</li>
+                <li><strong>Refunds:</strong> Once your return is received and inspected, we will notify you of the approval or rejection of your refund. If approved, your refund will be processed to your original method of payment.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved. | <a href="shipping-returns.html">Shipping & Returns</a> | <a href="contact.html">Contact</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // --- CART DISPLAY LOGIC --- //
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCounts = document.querySelectorAll('.cart-count');
+            cartCounts.forEach(el => el.textContent = count);
+        }
+
+        updateCartCount();
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>

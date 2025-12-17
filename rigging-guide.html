@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rigging Guide - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- NAVIGATION & UI STYLES --- */
+        :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
+
+        nav { display: flex; align-items: center; gap: 25px; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { 
+            background: none; border: none; color: white; 
+            font-family: 'Montserrat'; font-weight: 600; cursor: pointer; 
+            text-transform: uppercase; font-size: 14px; letter-spacing: 1px;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #1a1a1a;
+            min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red);
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #ccc; 
+            padding: 12px 15px; 
+            text-decoration: none;
+            display: block; 
+            font-size: 13px; 
+            transition: 0.3s;
+            text-align: left;
+        }
+        .dropdown-content a:hover { 
+            background: #252525; color: white; padding-left: 20px; 
+        }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        .cart-count { font-weight: bold; }
+
+        /* Guide Specific Layout */
+        .page-content { padding-top: 60px; padding-bottom: 80px; }
+        .guide-intro-text { margin-bottom: 40px; font-size: 1.1rem; line-height: 1.6; color: #ccc; }
+        .rigging-table { width: 100%; border-collapse: collapse; margin: 30px 0; background: var(--card-bg); }
+        .rigging-table th, .rigging-table td { padding: 15px; text-align: left; border-bottom: 1px solid #333; }
+        .rigging-table th { background: #222; color: var(--brand-red); font-family: 'Oswald'; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+            <nav>
+                <div class="dropdown">
+                    <button class="dropdown-btn">BROWSE SHOP ▼</button>
+                    <div class="dropdown-content">
+                        <a href="index.html#lure-showcase">The Skärgård Collection</a>
+                        <a href="index.html#hooks-hardware">Hooks & Hardware</a>
+                        <a href="rigging-guide.html">Rigging Guide</a>
+                        <a href="about-us.html">Our Story</a>
+                        <a href="contact.html">Contact Us</a>
+                    </div>
+                </div>
+                <a href="cart.html" id="cartLink" style="color:var(--brand-red); font-weight:700;">
+                    Cart (<span class="cart-count">0</span>)
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-content container">
+        <h2 class="page-title">Master The Method: The Skärgård Rigging Guide</h2>
+        <p class="guide-intro-text">The Skärgård Series is designed for a natural, yet powerful action. The tail is thin-walled to maximize vibration on minimal rod movement. Avoid overworking the lure; let the plastic's density and design do the work.</p>
+
+        <div class="rigging-image-block">
+            <img src="IMG_1744.jpeg" alt="Fish caught on lure" style="width:100%; border-radius:8px;">
+            <p class="image-caption">Proof in the catch: TJÖRN FINESSE lures deliver results.</p>
+        </div>
+
+        <h3 class="guide-subtitle">1. Recommended Rigging Techniques</h3>
+        <table class="rigging-table">
+            <thead>
+                <tr>
+                    <th>Technique</th>
+                    <th>Focus</th>
+                    <th>Recommended Size</th>
+                    <th>Setup Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Weedless Texas Rig</td>
+                    <td>Heavy Cover/Structure</td>
+                    <td>Large (15cm)</td>
+                    <td>Use a wide-gap, screw-lock hook (4/0 or 5/0). The weight should be pegged 6–8 inches above the lure.</td>
+                </tr>
+                <tr>
+                    <td>Jig Head Retrieval</td>
+                    <td>Open Water/Mid-Depth</td>
+                    <td>Small (9cm)</td>
+                    <td>Pair with a rounded, ball-head jig (1/8 oz to 1/4 oz). Use a steady, slow retrieve with occasional pulls.</td>
+                </tr>
+                <tr>
+                    <td>Dropshot Finesse</td>
+                    <td>Suspended/Finicky Fish</td>
+                    <td>Small (9cm)</td>
+                    <td>Hook the lure through the nose (no weight). Use slight slack-line shakes for maximum tail motion.</td>
+                </tr>
+                <tr>
+                    <td>Weighted Swim Hook</td>
+                    <td>Shallow Grass/Pads</td>
+                    <td>Large (15cm)</td>
+                    <td>Rig on a specialized belly-weighted swim hook (3/0 to 5/0) to keep the lure horizontal.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="guide-subtitle">2. Color Specific Tips</h3>
+        <p><strong>Red Head:</strong> Maximize its high-contrast appeal in **low-light conditions** (dawn/dusk) or in **stained/murky water**. Its bold silhouette triggers aggressive strikes.</p>
+        <p><strong>Shiny Red:</strong> Best used on **sunny days** or in **clear water**. The internal flash maximizes light reflection; fish it with a vertical presentation to mimic a fleeing baitfish.</p>
+
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved. | <a href="shipping-returns.html">Shipping & Returns</a> | <a href="contact.html">Contact</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // --- CART DISPLAY LOGIC --- //
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCounts = document.querySelectorAll('.cart-count');
+            cartCounts.forEach(el => el.textContent = count);
+        }
+
+        updateCartCount();
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>

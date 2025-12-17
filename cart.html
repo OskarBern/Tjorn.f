@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - TJÖRN FINESSE</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- NAVIGATION & UI STYLES --- */
+        :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
+
+        nav { display: flex; align-items: center; gap: 25px; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn { 
+            background: none; border: none; color: white; 
+            font-family: 'Montserrat'; font-weight: 600; cursor: pointer; 
+            text-transform: uppercase; font-size: 14px; letter-spacing: 1px;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #1a1a1a;
+            min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red);
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #ccc; padding: 12px 15px; text-decoration: none;
+            display: block; font-size: 13px; transition: 0.3s; text-align: left;
+        }
+        .dropdown-content a:hover { background: #252525; color: white; padding-left: 20px; }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        /* Cart Specific Styling */
+        .cart-container { padding: 60px 0; min-height: 60vh; }
+        .cart-item { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 4px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-left: 3px solid var(--brand-red);
+        }
+        .item-info h4 { margin: 0; font-family: 'Oswald'; font-size: 1.2rem; color: #fff; }
+        .item-info p { margin: 5px 0 0; color: #aaa; font-size: 0.9rem; }
+        
+        .remove-btn {
+            background: none; border: 1px solid #444; color: #ff4444;
+            padding: 5px 12px; cursor: pointer; border-radius: 3px;
+            font-size: 0.8rem; transition: 0.3s;
+        }
+        .remove-btn:hover { background: #ff4444; color: white; border-color: #ff4444; }
+
+        .total-section { 
+            text-align: right; 
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 1px solid #333; 
+        }
+        #total { font-family: 'Oswald'; font-size: 2rem; color: white; margin-bottom: 20px; }
+        
+        .empty-msg { text-align: center; color: #666; font-size: 1.2rem; margin-top: 50px; }
+    </style>
+</head>
+
+<body>
+<header>
+    <div class="container">
+        <a href="index.html" class="logo-text">TJÖRN FINESSE</a>
+        <nav>
+            <div class="dropdown">
+                <button class="dropdown-btn">BROWSE SHOP ▼</button>
+                <div class="dropdown-content">
+                    <a href="index.html#lure-showcase">The Skärgård Collection</a>
+                    <a href="index.html#hooks-hardware">Hooks & Hardware</a>
+                    <a href="rigging-guide.html">Rigging Guide</a>
+                    <a href="about-us.html">Our Story</a>
+                    <a href="contact.html">Contact Us</a>
+                </div>
+            </div>
+            <a href="cart.html" style="color:var(--brand-red); font-weight:700;">Cart</a>
+        </nav>
+    </div>
+</header>
+
+<section class="container cart-container">
+    <h1 class="page-title">Your Selection</h1>
+    
+    <div id="cart-items">
+        </div>
+
+    <div class="total-section" id="cart-footer" style="display:none;">
+        <h2 id="total"></h2>
+        <a href="checkout.html" class="btn primary">Proceed to Checkout</a>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2025 TJÖRN FINESSE. All Rights Reserved. | 
+        <a href="shipping-returns.html">Shipping & Returns</a> | 
+        <a href="contact.html">Contact</a></p>
+    </div>
+</footer>
+
+<script>
+// Load cart data
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+function renderCart() {
+    const cartBox = document.getElementById("cart-items");
+    const totalBox = document.getElementById("total");
+    const cartFooter = document.getElementById("cart-footer");
+
+    if (cart.length === 0) {
+        cartBox.innerHTML = '<div class="empty-msg"><p>Your cart is currently empty.</p><a href="index.html#lure-showcase" class="btn secondary" style="margin-top:20px; display:inline-block;">Back to Shop</a></div>';
+        cartFooter.style.display = "none";
+        return;
+    }
+
+    cartFooter.style.display = "block";
+    let html = "";
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        const price = Number(item.price) || 0;
+        const qty = Number(item.quantity) || 1;
+        const name = item.name || "Product";
+        
+        // Handle option display (using either item.option or item.size depending on which page added it)
+        const displayOption = item.option || item.size || "Standard";
+
+        html += `
+            <div class="cart-item">
+                <div class="item-info">
+                    <h4>${name}</h4>
+                    <p>${displayOption}</p>
+                    <p><strong>${price} SEK</strong> × ${qty}</p>
+                </div>
+                <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+            </div>
+        `;
+        total += price * qty;
+    });
+
+    cartBox.innerHTML = html;
+    totalBox.innerText = "Total: " + total + " SEK";
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+}
+
+// Initial Run
+renderCart();
+</script>
+
+</body>
+</html>
