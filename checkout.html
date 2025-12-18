@@ -14,7 +14,7 @@
   --accent:#c62828;
   --muted:#9aa0a6;
   --bg:#0f0f10;
-  --card:#0f0f10;
+  --card:#0f1112;
   --text:#fff;
   --box:#111;
 }
@@ -24,7 +24,7 @@ html,body{height:100%;margin:0;font-family:Montserrat,system-ui,-apple-system,Se
 .logo{font-family:Oswald,sans-serif;font-weight:700;color:#fff;font-size:20px;text-decoration:none}
 .layout{display:grid;grid-template-columns:1fr 420px;gap:28px}
 @media (max-width:940px){ .layout{grid-template-columns:1fr;padding:0 10px} }
-.card{background:#0f1112;border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+.card{background:var(--card);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
 h1{font-family:Oswald;margin:0 0 8px;font-size:28px}
 h2{margin:0 0 12px;font-size:16px}
 label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
@@ -55,7 +55,7 @@ textarea{min-height:90px; resize:vertical}
   <div class="layout">
     <section class="card">
       <h1>Checkout</h1>
-      <p class="small">Fill in your details. Shipping is added automatically.</p>
+      <p class="small">Fill in your details. Shipping and fees are added automatically.</p>
 
       <h2>Contact & Shipping</h2>
 
@@ -97,6 +97,11 @@ textarea{min-height:90px; resize:vertical}
         <div id="shippingCost" style="font-weight:800">0.00 SEK</div>
       </div>
 
+      <div class="total-row" style="border-top: none; padding-top: 4px;">
+        <div class="small">Processing Fee</div>
+        <div id="processingFee" style="font-weight:800">10.00 SEK</div>
+      </div>
+
       <div class="total-row" style="margin-top:8px">
         <div class="small">Total</div>
         <div id="totalCost" style="font-weight:900; font-size: 20px; color: var(--accent);">0.00 SEK</div>
@@ -111,6 +116,9 @@ textarea{min-height:90px; resize:vertical}
 </div>
 
 <script>
+/* --- CONFIG --- */
+const FLAT_PROCESSING_FEE = 10.00; // You can change this amount here
+
 /* --- HELPERS --- */
 function safeNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function fmtSEK(n){ return n.toFixed(2) + " SEK"; }
@@ -164,10 +172,9 @@ function renderCart(){
   updateTotals();
 }
 
-/* --- UPDATED SHIPPING LOGIC --- */
 function getShippingFor(c){
   switch(c){
-    case "sweden": return 20; // Changed from 0 to 20
+    case "sweden": return 20;
     case "germany": return 15;
     case "eu": return 25;
     case "outside": return 35;
@@ -178,14 +185,17 @@ function getShippingFor(c){
 function updateTotals(){
   const base = Number(el("cartList").dataset.baseTotal) || 0;
   const shipping = getShippingFor(el("country").value);
-  const total = base + shipping;
+  
+  // Math: Items + Shipping + Fee
+  const total = base + shipping + FLAT_PROCESSING_FEE;
 
   el("shippingCost").textContent = fmtSEK(shipping);
+  el("processingFee").textContent = fmtSEK(FLAT_PROCESSING_FEE);
   el("totalCost").textContent = fmtSEK(total);
   
   const cart = readCart();
   const itemsDesc = cart.map(i => `${i.name} (${getPriceBasedDescription(i.price, i.size)}) x${i.quantity}`).join(", ");
-  el("paymentMessage").value = `Shipping to: ${el("name").value || '...'} | Items: ${itemsDesc}`;
+  el("paymentMessage").value = `Shipping to: ${el("name").value || '...'} | Items: ${itemsDesc} | Includes ${FLAT_PROCESSING_FEE} SEK fee`;
   el("paymentMessage").dataset.amount = total.toFixed(2);
 }
 
@@ -205,9 +215,7 @@ function initPayPal() {
         },
         onApprove: function(data, actions) {
             return actions.order.capture().then(function(details) {
-                // Clear the cart after payment
                 localStorage.removeItem("cart");
-                // Redirect to the success page
                 window.location.href = "success.html";
             });
         },
