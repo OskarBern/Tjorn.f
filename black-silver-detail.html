@@ -24,18 +24,39 @@
             left: 0;
         }
         .dropdown-content a {
-            color: #ccc; 
-            padding: 12px 15px; 
-            text-decoration: none;
-            display: block; 
-            font-size: 13px; 
-            transition: 0.3s;
-            text-align: left;
+            color: #ccc; padding: 12px 15px; text-decoration: none;
+            display: block; font-size: 13px; transition: 0.3s; text-align: left;
         }
-        .dropdown-content a:hover { 
-            background: #252525; color: white; padding-left: 20px; 
-        }
+        .dropdown-content a:hover { background: #252525; color: white; padding-left: 20px; }
         .dropdown:hover .dropdown-content { display: block; }
+
+        /* --- MODERN SIZE CHOOSER (RED HEAD STYLE) --- */
+        .selector-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #888;
+        }
+        .size-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .size-card {
+            flex: 1;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .size-card:hover { border-color: #555; background: #222; }
+        .size-card.active { border-color: var(--brand-red); background: rgba(183, 28, 28, 0.1); }
+        .size-card .name { display: block; font-family: 'Oswald', sans-serif; font-size: 1.2em; color: #fff; margin-bottom: 4px; }
+        .size-card .details { display: block; font-size: 0.85em; color: #aaa; }
 
         /* Toast Notification */
         #toast {
@@ -70,7 +91,7 @@
                     </div>
                 </div>
                 <a href="cart.html" id="cartLink" style="color:var(--brand-red); font-weight:700;">
-                    Cart (<span class="cart-count">0</span>)
+                    Cart (<span class="cart-count">0</span> / 0 SEK)
                 </a>
             </nav>
         </div>
@@ -91,14 +112,20 @@
 
             <div class="purchase-info">
                 <h1 id="productName">The Skärgård: Black & Silver Shiner</h1>
-                <p class="price-tag">110 SEK - 120 SEK</p>
+                <p class="price-tag" id="display-price">110 SEK</p>
 
                 <div class="selector-group">
-                    <label>SIZE / PACK:</label>
-                    <select id="sizeSelect">
-                        <option value="120">Small (9cm, 2-pack) - 120 SEK</option>
-                        <option value="110">Large (15cm, 1-pack) - 110 SEK</option>
-                    </select>
+                    <label>SELECT SIZE / PACK:</label>
+                    <div class="size-options">
+                        <div class="size-card active" data-price="110" data-option="Large (15cm, 1-pack)">
+                            <span class="name">Large (15cm)</span>
+                            <span class="details">1-Pack • 110 SEK</span>
+                        </div>
+                        <div class="size-card" data-price="120" data-option="Small (9cm, 2-pack)">
+                            <span class="name">Small (9cm)</span>
+                            <span class="details">2-Pack • 120 SEK</span>
+                        </div>
+                    </div>
                 </div>
 
                 <a href="#" class="btn primary add-to-cart-btn" id="addToCartBtn">Add To Cart</a>
@@ -127,6 +154,29 @@
     <script>
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+        // Tracks current selection (Defaults to Large)
+        let selectedOption = "Large (15cm, 1-pack)";
+        let selectedPrice = 110;
+
+        // --- INTERACTIVE SELECTOR LOGIC --- //
+        const cards = document.querySelectorAll('.size-card');
+        const priceDisplay = document.getElementById('display-price');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Update active state
+                cards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // Update data
+                selectedPrice = Number(card.dataset.price);
+                selectedOption = card.dataset.option;
+
+                // Update display
+                priceDisplay.textContent = selectedPrice + " SEK";
+            });
+        });
+
         function showToast(message) {
             const t = document.getElementById("toast");
             t.textContent = message;
@@ -142,24 +192,20 @@
         }
 
         const addBtn = document.getElementById("addToCartBtn");
-        const select = document.getElementById("sizeSelect");
         const baseProductName = document.getElementById("productName").textContent.trim();
 
         addBtn.addEventListener("click", function(e) {
             e.preventDefault();
-            const price = Number(select.value);
-            const optionText = select.options[select.selectedIndex].text;
 
-            // Check if item already in cart
-            const existingItem = cart.find(item => item.name === baseProductName && item.option === optionText);
+            const existingItem = cart.find(item => item.name === baseProductName && item.option === selectedOption);
 
             if (existingItem) {
                 existingItem.quantity += 1;
             } else {
                 cart.push({ 
                     name: baseProductName, 
-                    price: price,
-                    option: optionText,
+                    price: selectedPrice,
+                    option: selectedOption,
                     quantity: 1
                 });
             }

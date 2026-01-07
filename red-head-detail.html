@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* --- PROFESSIONAL UI STYLES (MATCHING INDEX) --- */
+        /* --- PROFESSIONAL UI STYLES --- */
         :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
 
         nav { display: flex; align-items: center; gap: 25px; }
@@ -24,18 +24,61 @@
             left: 0;
         }
         .dropdown-content a {
-            color: #ccc; 
-            padding: 12px 15px; /* Minimized left space */
-            text-decoration: none;
-            display: block; 
-            font-size: 13px; 
-            transition: 0.3s;
-            text-align: left;
+            color: #ccc; padding: 12px 15px; text-decoration: none;
+            display: block; font-size: 13px; transition: 0.3s; text-align: left;
         }
-        .dropdown-content a:hover { 
-            background: #252525; color: white; padding-left: 20px; 
-        }
+        .dropdown-content a:hover { background: #252525; color: white; padding-left: 20px; }
         .dropdown:hover .dropdown-content { display: block; }
+
+        /* --- NEW MODERN SIZE CHOOSER --- */
+        .selector-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .size-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .size-card {
+            flex: 1;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .size-card:hover {
+            border-color: #555;
+            background: #222;
+        }
+
+        .size-card.active {
+            border-color: var(--brand-red);
+            background: rgba(183, 28, 28, 0.1);
+        }
+
+        .size-card .name {
+            display: block;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2em;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .size-card .details {
+            display: block;
+            font-size: 0.85em;
+            color: #aaa;
+        }
 
         /* Toast Notification */
         #toast {
@@ -91,14 +134,20 @@
 
             <div class="purchase-info">
                 <h1>The Skärgård: Red Head</h1>
-                <p class="price-tag">110 SEK - 120 SEK</p>
+                <p class="price-tag" id="display-price">110 SEK</p>
 
                 <div class="selector-group">
-                    <label>SIZE / PACK:</label>
-                    <select id="product-option">
-                        <option value="120">Small (9cm, 2-pack) - 120 SEK</option>
-                        <option value="110">Large (15cm, 1-pack) - 110 SEK</option>
-                    </select>
+                    <label>SELECT SIZE / PACK:</label>
+                    <div class="size-options">
+                        <div class="size-card active" data-price="110" data-option="Large (15cm, 1-pack)">
+                            <span class="name">Large (15cm)</span>
+                            <span class="details">1-Pack • 110 SEK</span>
+                        </div>
+                        <div class="size-card" data-price="120" data-option="Small (9cm, 2-pack)">
+                            <span class="name">Small (9cm)</span>
+                            <span class="details">2-Pack • 120 SEK</span>
+                        </div>
+                    </div>
                 </div>
 
                 <a href="#" class="btn primary add-to-cart-btn">Add To Cart</a>
@@ -127,6 +176,29 @@
     <script>
         // --- CART SYSTEM --- //
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // Track selection (Defaults to Large)
+        let selectedOption = "Large (15cm, 1-pack)";
+        let selectedPrice = 110;
+
+        // --- INTERACTIVE SELECTOR LOGIC --- //
+        const cards = document.querySelectorAll('.size-card');
+        const priceDisplay = document.getElementById('display-price');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove active from others, add to this one
+                cards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // Update internal values
+                selectedPrice = parseFloat(card.dataset.price);
+                selectedOption = card.dataset.option;
+
+                // Update price display
+                priceDisplay.textContent = selectedPrice + " SEK";
+            });
+        });
 
         function showToast(message) {
             const t = document.getElementById("toast");
@@ -159,11 +231,12 @@
         document.querySelector('.add-to-cart-btn').addEventListener('click', e => {
             e.preventDefault();
             const name = document.querySelector('h1').textContent;
-            const select = document.getElementById('product-option');
-            const optionText = select.options[select.selectedIndex].text;
-            const price = parseFloat(select.value);
 
-            const product = { name: name, option: optionText, price: price };
+            const product = { 
+                name: name, 
+                option: selectedOption, 
+                price: selectedPrice 
+            };
             addToCart(product);
         });
 

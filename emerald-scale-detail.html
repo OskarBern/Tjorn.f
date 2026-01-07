@@ -7,18 +7,70 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* --- PROFESSIONAL UI STYLES --- */
         :root { --brand-red: #b71c1c; --dark-bg: #0b0b0b; --card-bg: #161618; }
+
         nav { display: flex; align-items: center; gap: 25px; }
         .dropdown { position: relative; display: inline-block; }
-        .dropdown-btn { background: none; border: none; color: white; font-family: 'Montserrat'; font-weight: 600; cursor: pointer; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
-        .dropdown-content { display: none; position: absolute; background: #1a1a1a; min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red); left: 0; }
-        .dropdown-content a { color: #ccc; padding: 12px 15px; text-decoration: none; display: block; font-size: 13px; transition: 0.3s; text-align: left; }
+        .dropdown-btn { 
+            background: none; border: none; color: white; 
+            font-family: 'Montserrat'; font-weight: 600; cursor: pointer; 
+            text-transform: uppercase; font-size: 14px; letter-spacing: 1px;
+        }
+        .dropdown-content {
+            display: none; position: absolute; background: #1a1a1a;
+            min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000; top: 100%; border-top: 2px solid var(--brand-red);
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #ccc; padding: 12px 15px; text-decoration: none;
+            display: block; font-size: 13px; transition: 0.3s; text-align: left;
+        }
         .dropdown-content a:hover { background: #252525; color: white; padding-left: 20px; }
         .dropdown:hover .dropdown-content { display: block; }
-        #toast { visibility: hidden; min-width: 280px; background-color: #1a1a1a; color: #fff; text-align: center; border-radius: 4px; padding: 16px; position: fixed; z-index: 2000; left: 50%; bottom: 30px; transform: translateX(-50%); border: 1px solid #333; border-bottom: 3px solid var(--brand-red); font-family: 'Montserrat'; font-size: 14px; }
+
+        /* --- MODERN SIZE CHOOSER (RED HEAD STYLE) --- */
+        .selector-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #888;
+        }
+        .size-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .size-card {
+            flex: 1;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .size-card:hover { border-color: #555; background: #222; }
+        .size-card.active { border-color: var(--brand-red); background: rgba(183, 28, 28, 0.1); }
+        .size-card .name { display: block; font-family: 'Oswald', sans-serif; font-size: 1.2em; color: #fff; margin-bottom: 4px; }
+        .size-card .details { display: block; font-size: 0.85em; color: #aaa; }
+
+        /* Toast & Cart Styles */
+        #toast {
+            visibility: hidden; min-width: 280px; background-color: #1a1a1a;
+            color: #fff; text-align: center; border-radius: 4px;
+            padding: 16px; position: fixed; z-index: 2000;
+            left: 50%; bottom: 30px; transform: translateX(-50%);
+            border: 1px solid #333; border-bottom: 3px solid var(--brand-red);
+            font-family: 'Montserrat'; font-size: 14px;
+        }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
         .cart-count { font-weight: bold; }
     </style>
 </head>
@@ -38,7 +90,7 @@
                     </div>
                 </div>
                 <a href="cart.html" id="cartLink" style="color:var(--brand-red); font-weight:700;">
-                    Cart (<span class="cart-count">0</span>)
+                    Cart (<span class="cart-count">0</span> / 0 SEK)
                 </a>
             </nav>
         </div>
@@ -52,21 +104,27 @@
                 </div>
                 <div class="thumbnail-row">
                     <div><img src="View recent photos.png" alt="Emerald Scale Side View"></div>
-                    <div>[Natural View]</div>
-                    <div>[Rigged]</div>
+                    <div><span style="font-size: 12px; color: #666;">[Natural View]</span></div>
+                    <div><span style="font-size: 12px; color: #666;">[Rigged]</span></div>
                 </div>
             </div>
 
             <div class="purchase-info">
                 <h1>The Skärgård: Emerald Scale</h1>
-                <p class="price-tag">110 SEK - 120 SEK</p>
+                <p class="price-tag" id="display-price">110 SEK</p>
 
                 <div class="selector-group">
-                    <label>SIZE / PACK:</label>
-                    <select id="sizeSelect">
-                        <option value="120">Small (9cm, 2-pack) - 120 SEK</option>
-                        <option value="110">Large (15cm, 1-pack) - 110 SEK</option>
-                    </select>
+                    <label>SELECT SIZE / PACK:</label>
+                    <div class="size-options">
+                        <div class="size-card active" data-price="110" data-option="Large (15cm, 1-pack)">
+                            <span class="name">Large (15cm)</span>
+                            <span class="details">1-Pack • 110 SEK</span>
+                        </div>
+                        <div class="size-card" data-price="120" data-option="Small (9cm, 2-pack)">
+                            <span class="name">Small (9cm)</span>
+                            <span class="details">2-Pack • 120 SEK</span>
+                        </div>
+                    </div>
                 </div>
 
                 <a href="#" class="btn primary add-to-cart-btn" id="addToCartBtn">Add To Cart</a>
@@ -94,30 +152,62 @@
 
     <script>
         let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        
+        let selectedOption = "Large (15cm, 1-pack)";
+        let selectedPrice = 110;
+
+        // --- TILE SELECTION LOGIC --- //
+        const cards = document.querySelectorAll('.size-card');
+        const priceDisplay = document.getElementById('display-price');
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                cards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                selectedPrice = parseFloat(card.dataset.price);
+                selectedOption = card.dataset.option;
+
+                priceDisplay.textContent = selectedPrice + " SEK";
+            });
+        });
+
         function showToast(message) {
             const t = document.getElementById("toast");
-            t.textContent = message; t.className = "show";
+            t.textContent = message;
+            t.className = "show";
             setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
         }
+
         function updateCartLink() {
             const count = cart.reduce((total, item) => total + item.quantity, 0);
             const total = cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
             const cartLink = document.getElementById("cartLink");
             cartLink.innerHTML = `Cart (<span class="cart-count">${count}</span> / ${total} SEK)`;
         }
+
         document.getElementById("addToCartBtn").addEventListener("click", function(e) {
             e.preventDefault();
-            const select = document.getElementById("sizeSelect");
-            const price = Number(select.value);
-            const optionText = select.options[select.selectedIndex].text;
             const productName = document.querySelector("h1").innerText;
-            const existingItem = cart.find(item => item.name === productName && item.option === optionText);
-            if (existingItem) { existingItem.quantity++; } 
-            else { cart.push({ name: productName, price: price, option: optionText, quantity: 1 }); }
+
+            const existingItem = cart.find(item => item.name === productName && item.option === selectedOption);
+
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    name: productName,
+                    price: selectedPrice,
+                    option: selectedOption,
+                    quantity: 1
+                });
+            }
+
             localStorage.setItem("cart", JSON.stringify(cart));
             updateCartLink();
             showToast(`${productName} added to cart!`);
         });
+
         updateCartLink();
     </script>
 </body>
