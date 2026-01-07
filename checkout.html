@@ -43,6 +43,8 @@ textarea{min-height:90px; resize:vertical}
 .total-row{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.03);margin-top:12px}
 #paypal-button-container { margin-top: 20px; min-height: 150px; }
 .hidden { display: none !important; }
+/* Added styling for Euro Display */
+.euro-subtotal { color: #888; font-size: 14px; font-weight: 400; margin-top: 2px; text-align: right; }
 </style>
 </head>
 <body>
@@ -55,7 +57,7 @@ textarea{min-height:90px; resize:vertical}
   <div class="layout">
     <section class="card">
       <h1>Checkout</h1>
-      <p class="small">Fill in your details. Shipping and fees are added automatically.</p>
+      <p class="small">Shipping from Munich, Germany via DHL.</p>
 
       <h2>Contact & Shipping</h2>
 
@@ -63,17 +65,17 @@ textarea{min-height:90px; resize:vertical}
       <input id="name" type="text" placeholder="Marcus">
 
       <label for="address">Street & number</label>
-      <input id="address" type="text" placeholder="Street 12">
+      <input id="address" type="text" placeholder="Starnberger Str. 12">
 
       <label for="zip">ZIP / Postal code</label>
-      <input id="zip" type="text" placeholder="40210" inputmode="numeric">
+      <input id="zip" type="text" placeholder="80331" inputmode="numeric">
 
       <label for="country">Country</label>
       <select id="country">
-        <option value="sweden">Sweden (20 SEK)</option>
-        <option value="germany">Germany (15 SEK)</option>
-        <option value="eu">EU (25 SEK)</option>
-        <option value="outside">Outside EU (35 SEK)</option>
+        <option value="germany">Germany (Domestic - 65 SEK)</option>
+        <option value="sweden">Sweden (EU Zone - 160 SEK)</option>
+        <option value="eu">Other EU (160 SEK)</option>
+        <option value="outside">Outside EU / World (210 SEK)</option>
       </select>
 
       <div style="display:flex;gap:10px;margin-top:14px;align-items:center;">
@@ -93,7 +95,7 @@ textarea{min-height:90px; resize:vertical}
       <div id="cartList" class="cart-list small"></div>
 
       <div class="total-row">
-        <div class="small">Shipping</div>
+        <div class="small">Shipping (DHL Munich)</div>
         <div id="shippingCost" style="font-weight:800">0.00 SEK</div>
       </div>
 
@@ -104,7 +106,10 @@ textarea{min-height:90px; resize:vertical}
 
       <div class="total-row" style="margin-top:8px">
         <div class="small">Total</div>
-        <div id="totalCost" style="font-weight:900; font-size: 20px; color: var(--accent);">0.00 SEK</div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+          <div id="totalCost" style="font-weight:900; font-size: 20px; color: var(--accent);">0.00 SEK</div>
+          <div id="euroTotal" class="euro-subtotal">~ 0.00 EUR</div>
+        </div>
       </div>
 
       <div style="margin-top:20px; padding:15px; background:#0b0b0b; border-radius:8px; border:1px solid rgba(255,255,255,0.05)">
@@ -117,11 +122,13 @@ textarea{min-height:90px; resize:vertical}
 
 <script>
 /* --- CONFIG --- */
-const FLAT_PROCESSING_FEE = 10.00; // You can change this amount here
+const FLAT_PROCESSING_FEE = 10.00;
+const SEK_TO_EUR = 0.093; // Updated average exchange rate (1 SEK ≈ 0.093 EUR)
 
 /* --- HELPERS --- */
 function safeNum(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
 function fmtSEK(n){ return n.toFixed(2) + " SEK"; }
+function fmtEUR(n){ return "~ " + (n * SEK_TO_EUR).toFixed(2) + " EUR"; } // Euro formatting function
 function el(id){ return document.getElementById(id); }
 
 function getPriceBasedDescription(price, currentSize) {
@@ -145,6 +152,7 @@ function renderCart(){
   if(!cart.length){
     list.innerHTML = "<div class='small'>Your cart is empty.</div>";
     el("totalCost").textContent = "0.00 SEK";
+    el("euroTotal").textContent = "~ 0.00 EUR";
     return;
   }
 
@@ -162,7 +170,7 @@ function renderCart(){
       <div class="meta">
         <div class="title">${item.name}</div>
         <div class="opt">${displaySize}</div>
-        <div class="price">${price.toFixed(2)} SEK × ${qty}</div>
+        <div class="price">${price.toFixed(2)} SEK (${(price * SEK_TO_EUR).toFixed(2)} EUR) × ${qty}</div>
       </div>
     `;
     list.appendChild(row);
@@ -172,12 +180,13 @@ function renderCart(){
   updateTotals();
 }
 
+/* --- DHL MUNICH SHIPPING LOGIC --- */
 function getShippingFor(c){
   switch(c){
-    case "sweden": return 20;
-    case "germany": return 15;
-    case "eu": return 25;
-    case "outside": return 35;
+    case "germany": return 65;
+    case "sweden": return 160;
+    case "eu": return 160;
+    case "outside": return 210;
     default: return 0;
   }
 }
@@ -185,17 +194,16 @@ function getShippingFor(c){
 function updateTotals(){
   const base = Number(el("cartList").dataset.baseTotal) || 0;
   const shipping = getShippingFor(el("country").value);
-  
-  // Math: Items + Shipping + Fee
   const total = base + shipping + FLAT_PROCESSING_FEE;
 
   el("shippingCost").textContent = fmtSEK(shipping);
   el("processingFee").textContent = fmtSEK(FLAT_PROCESSING_FEE);
   el("totalCost").textContent = fmtSEK(total);
+  el("euroTotal").textContent = fmtEUR(total); // Updates Euro display
   
   const cart = readCart();
   const itemsDesc = cart.map(i => `${i.name} (${getPriceBasedDescription(i.price, i.size)}) x${i.quantity}`).join(", ");
-  el("paymentMessage").value = `Shipping to: ${el("name").value || '...'} | Items: ${itemsDesc} | Includes ${FLAT_PROCESSING_FEE} SEK fee`;
+  el("paymentMessage").value = `Shipping from Munich to: ${el("name").value || '...'} | Items: ${itemsDesc} | Includes ${FLAT_PROCESSING_FEE} SEK fee`;
   el("paymentMessage").dataset.amount = total.toFixed(2);
 }
 
@@ -220,7 +228,7 @@ function initPayPal() {
             });
         },
         onError: function(err) {
-            alert("Payment failed or was cancelled. Please check your details.");
+            alert("Payment failed or was cancelled.");
             console.error(err);
         }
     }).render('#paypal-button-container');
