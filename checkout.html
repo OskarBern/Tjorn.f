@@ -72,9 +72,8 @@ textarea{min-height:90px; resize:vertical}
 
       <label for="country">Country</label>
       <select id="country">
-        <option value="germany">Germany (Domestic - 65 SEK)</option>
-        <option value="sweden">Sweden (EU Zone - 160 SEK)</option>
-        <option value="eu">Other EU (160 SEK)</option>
+        <option value="germany">Germany (Domestic - 50 SEK)</option>
+        <option value="eu">Other EU (68 SEK)</option>
         <option value="outside">Outside EU / World (210 SEK)</option>
       </select>
 
@@ -183,8 +182,8 @@ function renderCart(){
 /* --- DHL MUNICH SHIPPING LOGIC --- */
 function getShippingFor(c){
   switch(c){
-    case "germany": return 65;
-    case "sweden": return 160;
+    case "germany": return 50;
+    case "sweden": return 68;
     case "eu": return 160;
     case "outside": return 210;
     default: return 0;
